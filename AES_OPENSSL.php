@@ -4,10 +4,11 @@
  * Created by Ademola Aina.
  * Date: 3/11/2018
  *
- * PHP AES encryption with openssl example.(versions 7.x)
- *
  * A simple Improved Code Developed Based on original publication at -
  * https://aesencryption.net/
+ *
+ * Advance Encryption Scheme Algorithm Implementation
+ * PHP AES encryption with openssl example.(versions 7.x)
  */
 class AES_OPENSSL
 {

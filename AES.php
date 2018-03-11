@@ -1,11 +1,16 @@
 <?php
 
 /**
+ * Created by Ademola Aina.
+ * Date: 3/11/2018
+ *
  * A simple Improved Code Developed Based on original publication at -
  * https://aesencryption.net/
  *
  * Advance Encryption Scheme Algorithm Implementation
- * Introduced a key normalization function to enable this implementation supports both PHP 5.x and 7.x
+ *
+ * IMPORTANT!!!
+ * We Introduced a key normalization function to enable this implementation to supports both PHP 5.x and 7.x
  */
 class AES
 {
