@@ -37,35 +37,6 @@ class AES
         MCRYPT_RIJNDAEL_192 => 24,
         MCRYPT_RIJNDAEL_256 => 32
     );
-    
-    protected static $instance = null;
-    
-    protected $iv = null;
-    
-    /**
-     * @param string $data
-     * @param string $key
-     * @param number $blockSize
-     * @param string $mode
-     */
-    public static function getInstance($data = null, $key = null, $blockSize = 256, $mode = 'cbc') {
-        if (null === self::$instance){
-            self::$instance = new self($data, $key, $blockSize, $mode);
-        }
-        
-        $method = $blockSize . '-' . $mode;
-        $instanceMethod = self::$instance->cipher.'-'.self::$instance->mode;
-        if (self::$instance->data != $data || self::$instance->key != $key || $method != $instanceMethod) {
-            self::$instance->setData($data);
-            self::$instance->setKey($key);
-            $this->setBlockSize($blockSize);
-            $this->setMode($mode);
-            if ($method != $instanceMethod){
-                $this->setIV("");
-            }
-        }
-        return self::$instance;
-    }
 
     /**
      * @constructor.
@@ -74,7 +45,7 @@ class AES
      * @param int $blockSize
      * @param string $mode ( M_ECB: works best if the encrypted value will be going over a URL. )
      */
-    private function __construct($data = null, $key = null, $blockSize = 256, $mode = 'cbc')
+    public function __construct($data = null, $key = null, $blockSize = 256, $mode = 'cbc')
     {
         $this->setData($data);
         $this->setKey($key);
