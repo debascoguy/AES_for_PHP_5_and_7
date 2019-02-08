@@ -1,7 +1,5 @@
 <?php
 
-namespace Services\Security;
-
 /**
  * Created by Ademola Aina.
  * Date: 3/11/2018
@@ -64,7 +62,6 @@ class AES_OPENSSL
      * @param string $key
      * @param number $blockSize
      * @param string $mode
-     * @return \Services\Security\AesOpenSSL
      */
     public static function getInstance($data = null, $key = null, $blockSize = 256, $mode = 'CBC') {
         if (null === self::$instance){
