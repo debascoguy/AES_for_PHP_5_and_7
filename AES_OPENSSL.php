@@ -1,5 +1,7 @@
 <?php
 
+namespace Services\Security;
+
 /**
  * Created by Ademola Aina.
  * Date: 3/11/2018
@@ -26,6 +28,7 @@ class AES_OPENSSL
      * @var string
      */
     protected $method;
+    
 
     /**
      * Available OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING
@@ -50,17 +53,48 @@ class AES_OPENSSL
     const M_ECB = 'ECB';
     const M_OFB = 'OFB';
     const M_XTS  = 'XTS';
+    
+    
+    protected static $instance = null;
+    
+    protected $iv = null;
+    
+    /**
+     * @param string $data
+     * @param string $key
+     * @param number $blockSize
+     * @param string $mode
+     * @return \Services\Security\AesOpenSSL
+     */
+    public static function getInstance($data = null, $key = null, $blockSize = 256, $mode = 'CBC') {
+        if (null === self::$instance){
+            self::$instance = new self($data, $key, $blockSize, $mode);
+        }
+        
+        $method = 'AES-' . $blockSize . '-' . $mode;
+        if (self::$instance->data != $data || self::$instance->key != $key ||  self::$instance->method != $method ) {
+            self::$instance->setData($data);
+            self::$instance->setKey($key);
+            self::$instance->setMethod($blockSize, $mode);
+            if (self::$instance->method != $method){
+                //Reset IV for the new method of encryption protocol
+                $this->setIv();
+            }
+        }
+        return self::$instance;
+    }
 
     /**
-     * @param $data
-     * @param $key
-     * @param $blockSize
-     * @param $mode
+     * @param string $data
+     * @param string $key
+     * @param number $blockSize
+     * @param string $mode
      */
-    function __construct($data = null, $key = null, $blockSize = null, $mode = 'CBC') {
+    private function __construct($data = null, $key = null, $blockSize = 256, $mode = 'CBC') {
         $this->setData($data);
         $this->setKey($key);
-        $this->setMethod($blockSize, $mode);
+        $this->setMethod($blockSize, strtoupper($mode));
+        $this->setIv($this->method);
     }
 
     /**
@@ -98,7 +132,7 @@ class AES_OPENSSL
     public function setMethod($blockSize, $mode = 'CBC') {
         if($blockSize==self::BLOCK_192 && in_array($mode, array('CBC-HMAC-SHA1','CBC-HMAC-SHA256','XTS'))){
             $this->method=null;
-            throw new Exception('Invalid block size and mode combination!');
+            throw new \Exception('Invalid block size and mode combination!');
         }
         $this->method = 'AES-' . $blockSize . '-' . $mode;
     }
@@ -109,6 +143,16 @@ class AES_OPENSSL
     public function validateParams() {
         return ($this->data != null && $this->method != null );
     }
+    
+    /**
+     * @param unknown $method
+     */
+    public function setIv($method = "") {
+        if (empty($method)){
+            $method = $this->method;
+        }
+        $this->iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($method));
+    }
 
     /**
      * @return string
@@ -116,20 +160,18 @@ class AES_OPENSSL
      */
     protected function getIV()
     {
-//      return '1234567890123456';
-//      return mcrypt_create_iv(mcrypt_get_iv_size($this->cipher, $this->mode), MCRYPT_RAND);
-        return openssl_random_pseudo_bytes(openssl_cipher_iv_length($this->method));
+        return $this->iv;
     }
 
     /**
      * @return string
-     * @throws Exception
+     * @throws \Exception
      */
     public function encrypt() {
         if ($this->validateParams()) {
             return trim(openssl_encrypt($this->data, $this->method, $this->key, $this->options,$this->getIV()));
         } else {
-            throw new Exception('Invalid params!');
+            throw new \Exception('Invalid params!');
         }
     }
 
@@ -141,7 +183,7 @@ class AES_OPENSSL
         if ($this->validateParams()) {
             return trim(openssl_decrypt($this->data, $this->method, $this->key, $this->options,$this->getIV()));
         } else {
-            throw new Exception('Invalid params!');
+            throw new \Exception('Invalid params!');
         }
     }
 
